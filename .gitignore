@@ -1,5 +1,72 @@
-# Object file
-*.o
+# Logs
+*.log
+logs/
 
-# Ada Library Information
-*.ali
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Environment files (should not be committed)
+.env
+.env.local
+.env.*.local
+
+# Test files
+test-output/
+coverage/
+
+# Node modules (if any tooling is added)
+node_modules/
+
+# Compiled files
+*.o
+*.so
+*.dylib
+
+# Archives
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# Credentials and secrets
+*.pem
+*.key
+*credentials*
+*secrets*
+!README.md
+
+# System specific
+*.pid
+*.seed
+
+# Backup files
+*.sql
+*.sql.gz
+
+# Local development
+local/
+dev/
+sandbox/
