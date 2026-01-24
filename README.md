@@ -1,7 +1,7 @@
 # 🚀 Pterodactyl Panel Auto Installer
 
 <p align="center">
-  <img src="https://pterodactyl.io/logos/new/pterodactyl_logo.png" alt="Pterodactyl Logo" width="400"/>
+  <img src="https://cdn.pterodactyl.io/logos/new/pterodactyl_logo.png" alt="Pterodactyl Logo" width="400"/>
 </p>
 
 <p align="center">

@@ -2,6 +2,45 @@
 
 set -euo pipefail
 
+REPO_URL="https://github.com/rainmc0123/Simple-Pterodactyl-Installer"
+INSTALL_DIR="/tmp/pterodactyl-installer-$$"
+
+if [[ "${BASH_SOURCE[0]}" == /dev/fd/* ]] || [[ ! -d "$(dirname "${BASH_SOURCE[0]}")/lib" ]]; then
+    echo -e "\033[1;35m"
+    echo "╔═══════════════════════════════════════════════════════════════════════════╗"
+    echo "║                                                                           ║"
+    echo "║       ██████╗ ████████╗███████╗██████╗  ██████╗                            ║"
+    echo "║       ██╔══██╗╚══██╔══╝██╔════╝██╔══██╗██╔═══██╗                           ║"
+    echo "║       ██████╔╝   ██║   █████╗  ██████╔╝██║   ██║                           ║"
+    echo "║       ██╔═══╝    ██║   ██╔══╝  ██╔══██╗██║   ██║                           ║"
+    echo "║       ██║        ██║   ███████╗██║  ██║╚██████╔╝                           ║"
+    echo "║       ╚═╝        ╚═╝   ╚══════╝╚═╝  ╚═╝ ╚═════╝                            ║"
+    echo "║                                                                           ║"
+    echo "║              PTERODACTYL PANEL AUTO INSTALLER                             ║"
+    echo "║                       © 2026 ClouviaID                                    ║"
+    echo "║                                                                           ║"
+    echo "╚═══════════════════════════════════════════════════════════════════════════╝"
+    echo -e "\033[0m"
+    echo ""
+    echo -e "\033[1;33m► Mengunduh installer...\033[0m"
+    
+    if ! command -v git &> /dev/null; then
+        echo -e "\033[1;36m  Installing git...\033[0m"
+        apt-get update -qq && apt-get install -y -qq git > /dev/null 2>&1
+    fi
+    
+    rm -rf "$INSTALL_DIR"
+    git clone --depth 1 "$REPO_URL" "$INSTALL_DIR" > /dev/null 2>&1
+    
+    echo -e "\033[1;32m✓ Download selesai!\033[0m"
+    echo ""
+    
+    cd "$INSTALL_DIR"
+    chmod +x install.sh
+    exec bash install.sh "$@"
+    exit 0
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export SCRIPT_DIR
