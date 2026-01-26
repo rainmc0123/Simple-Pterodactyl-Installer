@@ -36,9 +36,17 @@ get_panel_domain() {
     echo -e "    ${DIM}Enter your panel domain (pointed to this server)${NC}"
     echo ""
     
+    local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    
     if [[ -n "$ARG_DOMAIN" ]]; then
         FQDN=$(echo "$ARG_DOMAIN" | sed -e 's|^https\?://||' -e 's|/$||')
         echo -e "    ${NEON_GREEN}▸${NC} ${WHITE}Domain${NC}: ${NEON_CYAN}$FQDN${NC} ${DIM}(from args)${NC}"
+        
+        # Validate DNS even for args
+        if ! validate_domain_dns "$FQDN" "$server_ip"; then
+            log_error "Domain dari argument tidak valid. Silakan perbaiki DNS dan coba lagi."
+            exit 1
+        fi
     else
         while true; do
             echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Domain${NC}: "
@@ -48,6 +56,12 @@ get_panel_domain() {
             
             FQDN=$(echo "$FQDN" | sed -e 's|^https\?://||' -e 's|/$||')
             validate_domain "$FQDN" || { echo -e "    ${RED}✗${NC} ${DIM}Invalid format${NC}"; continue; }
+            
+            # Validate DNS
+            if ! validate_domain_dns "$FQDN" "$server_ip"; then
+                continue
+            fi
+            
             break
         done
     fi
@@ -56,8 +70,50 @@ get_panel_domain() {
     ADMIN_EMAIL="admin@$FQDN"
 }
 
+validate_domain_dns() {
+    local domain="$1"
+    local server_ip="$2"
+    
+    echo -e "    ${DIM}Memeriksa DNS untuk ${domain}...${NC}"
+    
+    # Get DNS A record
+    local dns_ip
+    dns_ip=$(dig +short "$domain" A 2>/dev/null | head -1)
+    
+    # If dig not available, try host command
+    if [[ -z "$dns_ip" ]]; then
+        dns_ip=$(host "$domain" 2>/dev/null | grep "has address" | head -1 | awk '{print $NF}')
+    fi
+    
+    # If still empty, try getent
+    if [[ -z "$dns_ip" ]]; then
+        dns_ip=$(getent hosts "$domain" 2>/dev/null | awk '{print $1}' | head -1)
+    fi
+    
+    if [[ -z "$dns_ip" ]]; then
+        echo -e "    ${RED}✗${NC} ${WHITE}DNS tidak ditemukan untuk ${domain}${NC}"
+        echo -e "    ${DIM}  Pastikan domain sudah memiliki A record${NC}"
+        echo ""
+        return 1
+    fi
+    
+    if [[ "$dns_ip" != "$server_ip" ]]; then
+        echo -e "    ${RED}✗${NC} ${WHITE}IP DNS tidak cocok!${NC}"
+        echo -e "    ${DIM}  DNS IP    : ${NEON_CYAN}${dns_ip}${NC}"
+        echo -e "    ${DIM}  Server IP : ${NEON_GREEN}${server_ip}${NC}"
+        echo -e "    ${NEON_ORANGE}⚠${NC} ${DIM}Pastikan A record domain mengarah ke IP server ini${NC}"
+        echo ""
+        return 1
+    fi
+    
+    echo -e "    ${NEON_GREEN}✓${NC} ${DIM}DNS OK (${dns_ip})${NC}"
+    return 0
+}
+
 get_wings_fqdn() {
     echo ""
+    
+    local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
     
     # For 'both' mode, default to panel domain
     if [[ "$INSTALL_MODE" == "both" && -n "$FQDN" ]]; then
@@ -75,6 +131,7 @@ get_wings_fqdn() {
         if [[ -z "$WINGS_FQDN" && "$INSTALL_MODE" == "both" && -n "$FQDN" ]]; then
             WINGS_FQDN="$FQDN"
             echo -e "    ${NEON_GREEN}▸${NC} ${DIM}Using:${NC} ${NEON_CYAN}$WINGS_FQDN${NC}"
+            # Already validated for panel, skip
             break
         fi
         
@@ -82,10 +139,16 @@ get_wings_fqdn() {
         
         WINGS_FQDN=$(echo "$WINGS_FQDN" | sed -e 's|^https\?://||' -e 's|/$||')
         validate_domain "$WINGS_FQDN" || { echo -e "    ${RED}✗${NC} ${DIM}Invalid format${NC}"; continue; }
+        
+        # Validate DNS
+        if ! validate_domain_dns "$WINGS_FQDN" "$server_ip"; then
+            continue
+        fi
+        
         break
     done
     
-    # Get email for wings-only mode (for SSL)
+    # Get email for wings-only mode (for SSL certificate)
     if [[ -z "$ADMIN_EMAIL" ]]; then
         echo ""
         echo -e "    ${DIM}Email for SSL certificate${NC}"
@@ -100,19 +163,8 @@ get_wings_fqdn() {
         done
     fi
     
-    # SSL option (default yes)
-    echo ""
-    echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Enable SSL?${NC} ${DIM}[Y/n]${NC}: "
-    read -r ssl_choice
-    ssl_choice="${ssl_choice:-y}"
-    
-    if [[ "$ssl_choice" =~ ^[Yy]$ ]]; then
-        WINGS_USE_SSL=true
-        echo -e "    ${NEON_GREEN}✓${NC} ${DIM}SSL enabled${NC}"
-    else
-        WINGS_USE_SSL=false
-        echo -e "    ${NEON_ORANGE}!${NC} ${DIM}SSL disabled${NC}"
-    fi
+    # SSL will be auto-detected and fixed during Wings configuration
+    echo -e "    ${DIM}ℹ SSL akan dikonfigurasi otomatis saat Wings dijalankan${NC}"
 }
 
 prompt_input() {
