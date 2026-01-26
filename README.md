@@ -25,7 +25,19 @@
 
 <p align="center">
   <strong>Dibuat oleh ClouviaID</strong><br>
-  © 2026 ClouviaID - All Rights Reserved
+  © 2025 ClouviaID - All Rights Reserved
+</p>
+
+---
+
+## 🖼️ Preview
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rainmc0123/Simple-Pterodactyl-Installer/main/assets/preview.png" alt="Installer Preview" width="600"/>
+</p>
+
+<p align="center">
+  <em>Tampilan terminal installer dengan UI futuristik</em>
 </p>
 
 ---
@@ -114,22 +126,7 @@ Script ini mengotomatisasi instalasi lengkap **Pterodactyl Panel** - panel manaj
 bash <(curl -s https://raw.githubusercontent.com/rainmc0123/Simple-Pterodactyl-Installer/main/install.sh)
 ```
 
-### Instalasi Manual
-
-1. **Download installer:**
-   ```bash
-   curl -Lo install.sh https://raw.githubusercontent.com/rainmc0123/Simple-Pterodactyl-Installer/main/install.sh
-   ```
-
-2. **Buat executable:**
-   ```bash
-   chmod +x install.sh
-   ```
-
-3. **Jalankan sebagai root:**
-   ```bash
-   sudo ./install.sh
-   ```
+> 💡 Script akan otomatis mengunduh versi terbaru dari GitHub setiap kali dijalankan.
 
 ### Proses Instalasi
 

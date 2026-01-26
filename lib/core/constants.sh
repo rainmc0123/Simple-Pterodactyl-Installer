@@ -1,7 +1,7 @@
 #!/bin/bash
 
 declare -gr INSTALLER_NAME="PTERODACTYL PANEL AUTO INSTALLER"
-declare -gr INSTALLER_VERSION="1.0.0"
+declare -gr INSTALLER_VERSION="1.0.3"
 declare -gr INSTALLER_AUTHOR="ClouviaID"
 declare -gr INSTALLER_LICENSE="MIT"
 declare -gr INSTALLER_WEBSITE="https://clouvia.id"

@@ -13,6 +13,8 @@ declare -g ADMIN_USERNAME="admin"
 declare -g APP_URL=""
 declare -g APP_KEY=""
 declare -g FQDN=""
+declare -g WINGS_FQDN=""
+declare -g WINGS_USE_SSL=true
 
 declare -g UNATTENDED=false
 declare -g ARG_DOMAIN=""

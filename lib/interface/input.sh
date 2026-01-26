@@ -1,64 +1,118 @@
 #!/bin/bash
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# FUTURISTIC INPUT HANDLER - Simple & Clean
+# ═══════════════════════════════════════════════════════════════════════════════
+
 get_user_input() {
-    print_section "Configuration"
+    echo ""
+    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_BLUE}⚡${NC} ${STYLE_BOLD}${WHITE}CONFIGURATION${NC}                                                     ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     
-    local domain_prompt=""
-    case $INSTALL_MODE in
-        panel|both)
-            domain_prompt="panel domain (e.g., panel.example.com)"
-            ;;
-        wings)
-            domain_prompt="node FQDN (e.g., node1.example.com)"
-            ;;
-    esac
+    # Get Panel domain for panel and both modes
+    if [[ "$INSTALL_MODE" == "panel" || "$INSTALL_MODE" == "both" ]]; then
+        get_panel_domain
+    fi
+    
+    # Get Wings FQDN for wings and both modes
+    if [[ "$INSTALL_MODE" == "wings" || "$INSTALL_MODE" == "both" ]]; then
+        get_wings_fqdn
+    fi
+    
+    # Configuration complete message
+    echo ""
+    echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
+    echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}Configuration complete${NC}"
+    echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
+    echo ""
+    
+    sleep 0.5
+    return 0
+}
+
+get_panel_domain() {
+    echo ""
+    echo -e "    ${DIM}Enter your panel domain (pointed to this server)${NC}"
+    echo ""
     
     if [[ -n "$ARG_DOMAIN" ]]; then
         FQDN=$(echo "$ARG_DOMAIN" | sed -e 's|^https\?://||' -e 's|/$||')
-        log_info "Using domain from command line: $FQDN"
+        echo -e "    ${NEON_GREEN}▸${NC} ${WHITE}Domain${NC}: ${NEON_CYAN}$FQDN${NC} ${DIM}(from args)${NC}"
     else
-        echo -e "${WHITE}Please enter your ${domain_prompt}:${NC}"
-        echo -e "${YELLOW}Note: This domain/hostname must be pointed to this server's IP address.${NC}"
-        echo ""
-        
         while true; do
-            read -p "Domain: " FQDN
+            echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Domain${NC}: "
+            read -r FQDN
             
-            if [[ -z "$FQDN" ]]; then
-                log_error "Domain cannot be empty!"
-                continue
-            fi
+            [[ -z "$FQDN" ]] && { echo -e "    ${RED}✗${NC} ${DIM}Required${NC}"; continue; }
             
             FQDN=$(echo "$FQDN" | sed -e 's|^https\?://||' -e 's|/$||')
-            
-            if ! validate_domain "$FQDN"; then
-                log_error "Invalid domain format! Please enter a valid domain."
-                continue
-            fi
-            
+            validate_domain "$FQDN" || { echo -e "    ${RED}✗${NC} ${DIM}Invalid format${NC}"; continue; }
             break
         done
     fi
     
     APP_URL="https://$FQDN"
+    ADMIN_EMAIL="admin@$FQDN"
+}
+
+get_wings_fqdn() {
+    echo ""
     
-    if [[ "$INSTALL_MODE" == "panel" || "$INSTALL_MODE" == "both" ]]; then
-        ADMIN_EMAIL="admin@$FQDN"
-        log_success "Domain configured: $FQDN"
-        log_info "Panel URL will be: $APP_URL"
+    # For 'both' mode, default to panel domain
+    if [[ "$INSTALL_MODE" == "both" && -n "$FQDN" ]]; then
+        echo -e "    ${DIM}Wings FQDN (Enter = same as panel: ${FQDN})${NC}"
     else
-        log_success "Node FQDN configured: $FQDN"
+        echo -e "    ${DIM}Enter your Wings node FQDN${NC}"
+    fi
+    echo ""
+    
+    while true; do
+        echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}FQDN${NC}: "
+        read -r WINGS_FQDN
+        
+        # Default to panel domain if empty in 'both' mode
+        if [[ -z "$WINGS_FQDN" && "$INSTALL_MODE" == "both" && -n "$FQDN" ]]; then
+            WINGS_FQDN="$FQDN"
+            echo -e "    ${NEON_GREEN}▸${NC} ${DIM}Using:${NC} ${NEON_CYAN}$WINGS_FQDN${NC}"
+            break
+        fi
+        
+        [[ -z "$WINGS_FQDN" ]] && { echo -e "    ${RED}✗${NC} ${DIM}Required${NC}"; continue; }
+        
+        WINGS_FQDN=$(echo "$WINGS_FQDN" | sed -e 's|^https\?://||' -e 's|/$||')
+        validate_domain "$WINGS_FQDN" || { echo -e "    ${RED}✗${NC} ${DIM}Invalid format${NC}"; continue; }
+        break
+    done
+    
+    # Get email for wings-only mode (for SSL)
+    if [[ -z "$ADMIN_EMAIL" ]]; then
+        echo ""
+        echo -e "    ${DIM}Email for SSL certificate${NC}"
+        echo ""
+        while true; do
+            echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Email${NC}: "
+            read -r ADMIN_EMAIL
+            
+            [[ -z "$ADMIN_EMAIL" ]] && { echo -e "    ${RED}✗${NC} ${DIM}Required${NC}"; continue; }
+            validate_email "$ADMIN_EMAIL" || { echo -e "    ${RED}✗${NC} ${DIM}Invalid format${NC}"; continue; }
+            break
+        done
     fi
     
+    # SSL option (default yes)
     echo ""
-    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}  All other configurations will be generated automatically.${NC}"
-    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
+    echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Enable SSL?${NC} ${DIM}[Y/n]${NC}: "
+    read -r ssl_choice
+    ssl_choice="${ssl_choice:-y}"
     
-    sleep 2
-    
-    return 0
+    if [[ "$ssl_choice" =~ ^[Yy]$ ]]; then
+        WINGS_USE_SSL=true
+        echo -e "    ${NEON_GREEN}✓${NC} ${DIM}SSL enabled${NC}"
+    else
+        WINGS_USE_SSL=false
+        echo -e "    ${NEON_ORANGE}!${NC} ${DIM}SSL disabled${NC}"
+    fi
 }
 
 prompt_input() {

@@ -43,7 +43,7 @@ log() {
 log_info() {
     local message="$1"
     
-    echo -e "${BLUE}[INFO]${NC} $message"
+    echo -e "    ${NEON_BLUE}ℹ${NC} ${DIM}${message}${NC}"
     write_log "INFO" "$(strip_colors "$message")"
     
     return 0
@@ -52,7 +52,7 @@ log_info() {
 log_success() {
     local message="$1"
     
-    echo -e "${GREEN}[SUCCESS]${NC} $message"
+    echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}${message}${NC}"
     write_log "SUCCESS" "$(strip_colors "$message")"
     
     return 0
@@ -61,7 +61,7 @@ log_success() {
 log_warning() {
     local message="$1"
     
-    echo -e "${YELLOW}[WARNING]${NC} $message"
+    echo -e "    ${NEON_ORANGE}⚠${NC} ${CYBER_YELLOW}${message}${NC}"
     write_log "WARNING" "$(strip_colors "$message")"
     
     return 0
@@ -70,7 +70,7 @@ log_warning() {
 log_error() {
     local message="$1"
     
-    echo -e "${RED}[ERROR]${NC} $message"
+    echo -e "    ${RED}✗${NC} ${RED}${message}${NC}"
     write_log "ERROR" "$(strip_colors "$message")"
     
     return 0
@@ -80,7 +80,7 @@ log_debug() {
     local message="$1"
     
     if [[ "${DEBUG:-false}" == "true" ]]; then
-        echo -e "${GRAY}[DEBUG]${NC} $message"
+        echo -e "    ${DIM}[DBG] ${message}${NC}"
     fi
     write_log "DEBUG" "$(strip_colors "$message")"
     
@@ -91,7 +91,7 @@ log_fatal() {
     local message="$1"
     local exit_code="${2:-1}"
     
-    echo -e "${RED}[FATAL]${NC} $message"
+    echo -e "    ${RED}✗ FATAL:${NC} ${RED}${message}${NC}"
     write_log "FATAL" "$(strip_colors "$message")"
     
     exit "$exit_code"
@@ -100,11 +100,11 @@ log_fatal() {
 log_section() {
     local title="$1"
     
-    echo "" | tee -a "$LOG_FILE"
-    echo -e "${PURPLE}══════════════════════════════════════════════════════════════════════════${NC}" | tee -a "$LOG_FILE"
-    echo -e "${WHITE}  ${title}${NC}" | tee -a "$LOG_FILE"
-    echo -e "${PURPLE}══════════════════════════════════════════════════════════════════════════${NC}" | tee -a "$LOG_FILE"
-    echo "" | tee -a "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
+    echo "══════════════════════════════════════════════════" >> "$LOG_FILE"
+    echo "  ${title}" >> "$LOG_FILE"
+    echo "══════════════════════════════════════════════════" >> "$LOG_FILE"
+    echo "" >> "$LOG_FILE"
     
     return 0
 }

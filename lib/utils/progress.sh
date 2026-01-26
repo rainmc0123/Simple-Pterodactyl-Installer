@@ -1,7 +1,8 @@
 #!/bin/bash
 
-declare -gr PROGRESS_BAR_WIDTH=50
+declare -gr PROGRESS_BAR_WIDTH=40
 declare -gr PROGRESS_CHAR_FILLED="█"
+declare -gr PROGRESS_CHAR_PARTIAL="▓"
 declare -gr PROGRESS_CHAR_EMPTY="░"
 
 show_progress() {
@@ -10,7 +11,7 @@ show_progress() {
     local step_name="$3"
     
     local percent=$((current * 100 / total))
-    local filled=$((percent / 2))
+    local filled=$((percent * PROGRESS_BAR_WIDTH / 100))
     local empty=$((PROGRESS_BAR_WIDTH - filled))
     
     local bar=""
@@ -37,10 +38,17 @@ show_progress() {
         eta=$(printf "%02d:%02d" "$eta_min" "$eta_sec")
     fi
     
-    echo -e "${PURPLE}┌─────────────────────────────────────────────────────────────────────────────┐${NC}"
-    echo -e "${PURPLE}│${NC} ${WHITE}Step ${current}/${total}${NC} │ ${bar} │ ${CYAN}${percent}%${NC} │ ⏱ ${elapsed_min}m${elapsed_sec}s │ ETA: ${eta} ${PURPLE}│${NC}"
-    echo -e "${PURPLE}│${NC} ${YELLOW}► ${step_name}${NC}"
-    echo -e "${PURPLE}└─────────────────────────────────────────────────────────────────────────────┘${NC}"
+    # Futuristic progress display
+    echo ""
+    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_BLUE}⚡${NC} ${STYLE_BOLD}${WHITE}STEP ${current}/${total}${NC}                                                        ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}[${NC}${NEON_GREEN}${bar}${NC}${DIM}]${NC} ${WHITE}${percent}%${NC}                                  ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_CYAN}▸${NC} ${WHITE}${step_name}${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}Elapsed:${NC} ${WHITE}$(printf "%02d:%02d" "$elapsed_min" "$elapsed_sec")${NC}  ${DIM}│${NC}  ${DIM}ETA:${NC} ${WHITE}${eta}${NC}                                   ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     
     return 0
 }
@@ -49,7 +57,6 @@ print_section() {
     local title="$1"
     
     CURRENT_STEP=$((CURRENT_STEP + 1))
-    echo ""
     show_progress "$CURRENT_STEP" "$TOTAL_STEPS" "$title"
     echo ""
     

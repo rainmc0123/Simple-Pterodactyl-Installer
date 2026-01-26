@@ -106,6 +106,13 @@ main() {
     
     if [[ "$INSTALL_MODE" == "wings" || "$INSTALL_MODE" == "both" ]]; then
         install_docker
+        
+        # Install certbot and get SSL for Wings if SSL is enabled
+        if [[ "$WINGS_USE_SSL" == "true" ]]; then
+            install_certbot
+            setup_wings_ssl
+        fi
+        
         install_wings
     fi
     

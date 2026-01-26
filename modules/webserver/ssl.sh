@@ -24,6 +24,55 @@ obtain_pterodactyl_ssl() {
     return 0
 }
 
+setup_wings_ssl() {
+    print_section "Menyiapkan Sertifikat SSL untuk Wings"
+    
+    local wings_domain="$WINGS_FQDN"
+    local email="${ADMIN_EMAIL:-admin@$wings_domain}"
+    
+    log_info "Mendapatkan sertifikat SSL untuk Wings node: $wings_domain"
+    
+    # Check if certificate already exists (might be same as panel domain)
+    if check_ssl_certificate_exists "$wings_domain"; then
+        log_success "Sertifikat SSL sudah ada untuk $wings_domain"
+        return 0
+    fi
+    
+    # Use standalone mode since we don't have nginx configured for wings
+    # Stop any service that might be using port 80
+    local port_80_in_use=false
+    if ss -tlnp | grep -q ':80 '; then
+        port_80_in_use=true
+        log_info "Port 80 sedang digunakan, mencoba menghentikan sementara..."
+        systemctl stop nginx 2>/dev/null || true
+    fi
+    
+    # Get certificate using standalone mode
+    run_with_spinner "Mendapatkan sertifikat SSL untuk Wings" "certbot certonly --standalone -d $wings_domain --non-interactive --agree-tos --email $email"
+    
+    local cert_result=$?
+    
+    # Restart nginx if it was running
+    if [[ "$port_80_in_use" == "true" ]]; then
+        systemctl start nginx 2>/dev/null || true
+    fi
+    
+    if [[ $cert_result -eq 0 ]]; then
+        log_success "Sertifikat SSL untuk Wings berhasil didapatkan"
+        log_info "Lokasi sertifikat:"
+        log_info "  - Certificate: /etc/letsencrypt/live/$wings_domain/fullchain.pem"
+        log_info "  - Private Key: /etc/letsencrypt/live/$wings_domain/privkey.pem"
+    else
+        log_warning "Gagal mendapatkan sertifikat SSL untuk Wings"
+        log_info "Wings akan menggunakan auto_tls atau HTTP"
+        log_info "Anda dapat mencoba lagi nanti dengan:"
+        log_info "  certbot certonly --standalone -d $wings_domain"
+        WINGS_USE_SSL=false
+    fi
+    
+    return 0
+}
+
 renew_pterodactyl_ssl() {
     log_info "Memperbarui sertifikat SSL..."
     

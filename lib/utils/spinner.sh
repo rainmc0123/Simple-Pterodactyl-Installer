@@ -1,10 +1,11 @@
 #!/bin/bash
 
+# Futuristic spinner frames
 declare -ga SPINNER_FRAMES_DOTS=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
-declare -ga SPINNER_FRAMES_LINE=('|' '/' '-' '\')
-declare -ga SPINNER_FRAMES_BOUNCE=('⠁' '⠂' '⠄' '⡀' '⢀' '⠠' '⠐' '⠈')
-declare -ga SPINNER_FRAMES_ARROW=('←' '↖' '↑' '↗' '→' '↘' '↓' '↙')
-declare -ga SPINNER_FRAMES_CIRCLE=('◐' '◓' '◑' '◒')
+declare -ga SPINNER_FRAMES_CYBER=('◢' '◣' '◤' '◥')
+declare -ga SPINNER_FRAMES_PULSE=('○' '◔' '◑' '◕' '●' '◕' '◑' '◔')
+declare -ga SPINNER_FRAMES_ARROW=('▹▹▹' '▸▹▹' '▹▸▹' '▹▹▸')
+declare -ga SPINNER_FRAMES_BLOCKS=('▰▱▱' '▰▰▱' '▰▰▰' '▱▰▰' '▱▱▰' '▱▱▱')
 
 declare -g SPINNER_PID=""
 declare -g SPINNER_ACTIVE=false
@@ -58,15 +59,15 @@ run_with_spinner() {
     eval "$command" >> "$LOG_FILE" 2>&1 &
     local cmd_pid=$!
     
-    local frames=("${SPINNER_FRAMES_DOTS[@]}")
+    local frames=("${SPINNER_FRAMES_CYBER[@]}")
     local i=0
     
     while kill -0 "$cmd_pid" 2>/dev/null; do
         elapsed=$(($(date +%s) - start_time))
         local frame="${frames[$((i % ${#frames[@]}))]}"
-        printf "\r${CYAN}  %s${NC} %s ${WHITE}(%ds)${NC}   " "$frame" "$message" "$elapsed"
+        printf "\r    ${NEON_CYAN}%s${NC} ${WHITE}%s${NC} ${DIM}%ds${NC}   " "$frame" "$message" "$elapsed"
         i=$((i + 1))
-        sleep 0.1
+        sleep 0.08
     done
     
     wait "$cmd_pid"
@@ -77,7 +78,7 @@ run_with_spinner() {
     printf "\r\033[K"
     
     if [[ $exit_code -eq 0 ]]; then
-        echo -e "${GREEN}  ✓${NC} ${message} ${WHITE}(completed in ${elapsed}s)${NC}"
+        echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}${message}${NC} ${DIM}(${elapsed}s)${NC}"
         return 0
     else
         echo -e "${RED}  ✗${NC} ${message} ${WHITE}(failed after ${elapsed}s)${NC}"

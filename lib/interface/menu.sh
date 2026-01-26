@@ -27,33 +27,30 @@ show_install_menu() {
     fi
     
     echo ""
-    echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${NC}                    ${WHITE}PILIH TIPE INSTALASI${NC}                                ${CYAN}║${NC}"
-    echo -e "${CYAN}╠═══════════════════════════════════════════════════════════════════════════╣${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}   ${GREEN}[1]${NC} ${WHITE}Install Panel Saja${NC}                                             ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Web interface untuk mengelola game server                       ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Menginstall: PHP, MariaDB, Redis, Nginx, Certbot                ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}   ${GREEN}[2]${NC} ${WHITE}Install Wings Saja${NC}                                             ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Daemon untuk menjalankan game server (install di node server)   ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Menginstall: Docker, Wings binary                               ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}   ${GREEN}[3]${NC} ${WHITE}Install Keduanya (Panel + Wings)${NC}                               ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Instalasi lengkap di satu server                                ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Cocok untuk testing atau setup kecil                            ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}   ${YELLOW}[4]${NC} ${WHITE}Uninstall Pterodactyl${NC}                                         ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Hapus Panel dan/atau Wings dari server                          ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}       └─ Opsi untuk backup database sebelum menghapus                    ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}   ${RED}[0]${NC} ${WHITE}Keluar${NC}                                                          ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}                                                                           ${CYAN}║${NC}"
-    echo -e "${CYAN}╚═══════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}              ${STYLE_BOLD}${WHITE}⚡ SELECT INSTALLATION MODE ⚡${NC}"
+    echo -e "    ${NEON_CYAN}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}   ${NEON_GREEN}[1]${NC} ${WHITE}Panel Only${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}       ${DIM}Web interface + Database + SSL${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}   ${NEON_BLUE}[2]${NC} ${WHITE}Wings Only${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}       ${DIM}Docker + Wings daemon + SSL${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}   ${NEON_PURPLE}[3]${NC} ${WHITE}Full Stack (Panel + Wings)${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}       ${DIM}Complete installation on single server${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}   ${NEON_ORANGE}[4]${NC} ${WHITE}Uninstall${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}       ${DIM}Remove Pterodactyl components${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}   ${RED}[0]${NC} ${DIM}Exit${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
     while true; do
-        read -p "Pilih opsi [0-4]: " choice
+        echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Enter option${NC} ${DIM}[0-4]${NC}: "
+        read -r choice
         case $choice in
             1)
                 INSTALL_MODE="panel"
@@ -72,11 +69,12 @@ show_install_menu() {
                 break
                 ;;
             0)
-                echo -e "${YELLOW}Instalasi dibatalkan.${NC}"
+                echo ""
+                echo -e "    ${DIM}[SYSTEM] Terminating...${NC}"
                 exit 0
                 ;;
             *)
-                echo -e "${RED}Opsi tidak valid. Silakan pilih 0-4.${NC}"
+                echo -e "    ${RED}✗${NC} ${DIM}Invalid option. Try again.${NC}"
                 ;;
         esac
     done
@@ -86,20 +84,20 @@ show_install_menu() {
     echo ""
     case $INSTALL_MODE in
         panel)
-            echo -e "${GREEN}► Menginstall Panel Saja${NC}"
+            echo -e "    ${NEON_GREEN}▸${NC} ${WHITE}Mode:${NC} ${NEON_GREEN}Panel Installation${NC}"
             ;;
         wings)
-            echo -e "${GREEN}► Menginstall Wings Saja${NC}"
+            echo -e "    ${NEON_BLUE}▸${NC} ${WHITE}Mode:${NC} ${NEON_BLUE}Wings Installation${NC}"
             ;;
         both)
-            echo -e "${GREEN}► Menginstall Panel + Wings${NC}"
+            echo -e "    ${NEON_PURPLE}▸${NC} ${WHITE}Mode:${NC} ${NEON_PURPLE}Full Stack Installation${NC}"
             ;;
         uninstall)
-            echo -e "${YELLOW}► Mode Uninstall${NC}"
+            echo -e "    ${NEON_ORANGE}▸${NC} ${WHITE}Mode:${NC} ${NEON_ORANGE}Uninstall${NC}"
             ;;
     esac
     echo ""
-    sleep 1
+    sleep 0.5
     
     return 0
 }
@@ -110,10 +108,10 @@ set_total_steps() {
             TOTAL_STEPS=15
             ;;
         wings)
-            TOTAL_STEPS=6
+            TOTAL_STEPS=8
             ;;
         both)
-            TOTAL_STEPS=20
+            TOTAL_STEPS=22
             ;;
         uninstall)
             TOTAL_STEPS=5
@@ -125,26 +123,27 @@ set_total_steps() {
 
 show_uninstall_menu() {
     echo ""
-    echo -e "${RED}╔═══════════════════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║${NC}                    ${WHITE}UNINSTALL PTERODACTYL${NC}                                 ${RED}║${NC}"
-    echo -e "${RED}╠═══════════════════════════════════════════════════════════════════════════╣${NC}"
-    echo -e "${RED}║${NC}                                                                           ${RED}║${NC}"
-    echo -e "${RED}║${NC}   ${YELLOW}[1]${NC} ${WHITE}Uninstall Panel Saja${NC}                                          ${RED}║${NC}"
-    echo -e "${RED}║${NC}       └─ Hapus Panel, database, dan konfigurasi web                      ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                                           ${RED}║${NC}"
-    echo -e "${RED}║${NC}   ${YELLOW}[2]${NC} ${WHITE}Uninstall Wings Saja${NC}                                          ${RED}║${NC}"
-    echo -e "${RED}║${NC}       └─ Hapus Wings daemon dan konfigurasi                              ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                                           ${RED}║${NC}"
-    echo -e "${RED}║${NC}   ${YELLOW}[3]${NC} ${WHITE}Uninstall Keduanya (Panel + Wings)${NC}                            ${RED}║${NC}"
-    echo -e "${RED}║${NC}       └─ Hapus semua komponen Pterodactyl                                ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                                           ${RED}║${NC}"
-    echo -e "${RED}║${NC}   ${GREEN}[0]${NC} ${WHITE}Kembali${NC}                                                         ${RED}║${NC}"
-    echo -e "${RED}║${NC}                                                                           ${RED}║${NC}"
-    echo -e "${RED}╚═══════════════════════════════════════════════════════════════════════════╝${NC}"
+    echo -e "    ${RED}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "    ${RED}┃${NC}                  ${STYLE_BOLD}${WHITE}⚠ UNINSTALL MODE ⚠${NC}                               ${RED}┃${NC}"
+    echo -e "    ${RED}┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫${NC}"
+    echo -e "    ${RED}┃${NC}                                                                        ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}   ${NEON_ORANGE}[1]${NC} ${WHITE}Panel Only${NC}                                                     ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}       ${DIM}Remove Panel, database, and web config${NC}                          ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}                                                                        ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}   ${NEON_ORANGE}[2]${NC} ${WHITE}Wings Only${NC}                                                     ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}       ${DIM}Remove Wings daemon and config${NC}                                   ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}                                                                        ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}   ${NEON_ORANGE}[3]${NC} ${WHITE}Full Uninstall${NC}                                                 ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}       ${DIM}Remove all Pterodactyl components${NC}                                ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}                                                                        ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}   ${NEON_GREEN}[0]${NC} ${DIM}Back${NC}                                                           ${RED}┃${NC}"
+    echo -e "    ${RED}┃${NC}                                                                        ${RED}┃${NC}"
+    echo -e "    ${RED}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
     echo ""
     
     while true; do
-        read -p "Pilih opsi [0-3]: " choice
+        echo -ne "    ${RED}▸${NC} ${WHITE}Enter option${NC} ${DIM}[0-3]${NC}: "
+        read -r choice
         case $choice in
             1)
                 UNINSTALL_MODE="panel"
@@ -159,11 +158,12 @@ show_uninstall_menu() {
                 break
                 ;;
             0)
-                echo -e "${YELLOW}Kembali ke menu utama...${NC}"
+                echo ""
+                echo -e "    ${DIM}[SYSTEM] Returning to main menu...${NC}"
                 exec "$0"
                 ;;
             *)
-                echo -e "${RED}Opsi tidak valid.${NC}"
+                echo -e "    ${RED}✗${NC} ${DIM}Invalid option.${NC}"
                 ;;
         esac
     done
@@ -175,15 +175,17 @@ confirm_action() {
     local message="$1"
     
     if [[ "$UNATTENDED" == "true" ]]; then
-        log_info "Konfirmasi otomatis: $message"
+        log_info "Auto-confirmed: $message"
         return 0
     fi
     
-    echo -e "${YELLOW}$message${NC}"
-    read -p "Lanjutkan? (y/n): " -n 1 -r
+    echo ""
+    echo -e "    ${NEON_ORANGE}⚠${NC} ${WHITE}$message${NC}"
+    echo -ne "    ${DIM}Continue?${NC} ${WHITE}[y/N]${NC}: "
+    read -r -n 1
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_error "Instalasi dibatalkan oleh pengguna."
+        echo -e "    ${RED}✗${NC} ${DIM}Operation cancelled.${NC}"
         exit 1
     fi
     
