@@ -34,31 +34,57 @@ wait_for_wings_config() {
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}1.${NC} Login ke Panel sebagai Admin"
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}2.${NC} Pergi ke ${WHITE}Admin → Locations${NC} → Buat lokasi baru"
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}3.${NC} Pergi ke ${WHITE}Admin → Nodes${NC} → Buat node baru"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}4.${NC} Klik node → Tab ${WHITE}Configuration${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}5.${NC} Copy konfigurasi ke ${WHITE}/etc/pterodactyl/config.yml${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}Atau gunakan Auto-Deploy token dari Panel${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}4.${NC} Klik node → Tab ${WHITE}Configuration${NC} → ${NEON_ORANGE}Generate Token${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}5.${NC} Copy command ${WHITE}Auto-Deploy${NC} dan paste di bawah"
     echo -e "    ${NEON_CYAN}┃${NC}"
     echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
-    # Wait for user to configure
+    # Wait for user to paste wings configure command
     while true; do
-        echo -ne "    ${NEON_CYAN}▸${NC} ${WHITE}Tekan Enter setelah selesai konfigurasi...${NC} "
-        read -r
-        
-        # Check if config.yml exists and is valid
-        if [[ -f "/etc/pterodactyl/config.yml" ]]; then
-            local config_size=$(stat -c%s "/etc/pterodactyl/config.yml" 2>/dev/null || echo "0")
-            if [[ "$config_size" -gt 100 ]]; then
-                echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}Konfigurasi Wings ditemukan${NC}"
-                break
-            fi
-        fi
-        
-        echo -e "    ${RED}✗${NC} ${DIM}File /etc/pterodactyl/config.yml belum ada atau kosong${NC}"
-        echo -e "    ${DIM}   Pastikan Anda sudah menyalin konfigurasi dari Panel${NC}"
+        echo -e "    ${NEON_CYAN}▸${NC} ${WHITE}Paste command dari Panel (wings configure ...):${NC}"
         echo ""
+        echo -ne "    "
+        read -r wings_command
+        
+        # Check if user pasted a wings configure command
+        if [[ "$wings_command" == *"wings configure"* ]]; then
+            echo ""
+            log_info "Menjalankan konfigurasi Wings..."
+            
+            # Extract and run the command (remove cd part if exists, we'll handle directory)
+            local config_cmd
+            config_cmd=$(echo "$wings_command" | sed 's/.*\(wings configure\)/\1/')
+            
+            # Run wings configure
+            cd /etc/pterodactyl
+            eval "$config_cmd" >> "$LOG_FILE" 2>&1
+            
+            if [[ -f "/etc/pterodactyl/config.yml" ]]; then
+                local config_size=$(stat -c%s "/etc/pterodactyl/config.yml" 2>/dev/null || echo "0")
+                if [[ "$config_size" -gt 100 ]]; then
+                    echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}Wings berhasil dikonfigurasi!${NC}"
+                    break
+                fi
+            fi
+            
+            echo -e "    ${RED}✗${NC} ${DIM}Konfigurasi gagal. Coba lagi.${NC}"
+            echo ""
+        elif [[ -z "$wings_command" ]]; then
+            # User pressed Enter without command, check if config exists
+            if [[ -f "/etc/pterodactyl/config.yml" ]]; then
+                local config_size=$(stat -c%s "/etc/pterodactyl/config.yml" 2>/dev/null || echo "0")
+                if [[ "$config_size" -gt 100 ]]; then
+                    echo -e "    ${NEON_GREEN}✓${NC} ${WHITE}Konfigurasi Wings ditemukan${NC}"
+                    break
+                fi
+            fi
+            echo -e "    ${RED}✗${NC} ${DIM}Config belum ada. Paste command wings configure dari Panel.${NC}"
+            echo ""
+        else
+            echo -e "    ${RED}✗${NC} ${DIM}Command tidak valid. Harus dimulai dengan 'wings configure'${NC}"
+            echo ""
+        fi
     done
     
     return 0
