@@ -38,35 +38,55 @@ setup_wings_ssl() {
         return 0
     fi
     
-    # Use standalone mode since we don't have nginx configured for wings
-    # Stop any service that might be using port 80
-    local port_80_in_use=false
-    if ss -tlnp | grep -q ':80 '; then
-        port_80_in_use=true
-        log_info "Port 80 sedang digunakan, mencoba menghentikan sementara..."
-        systemctl stop nginx 2>/dev/null || true
+    # Stop nginx if running (required for standalone mode)
+    local nginx_was_running=false
+    if systemctl is-active --quiet nginx 2>/dev/null; then
+        nginx_was_running=true
+        log_info "Menghentikan Nginx sementara untuk SSL standalone..."
+        systemctl stop nginx >> "$LOG_FILE" 2>&1
+        sleep 2
+    fi
+    
+    # Also check if any other process is using port 80
+    if ss -tlnp 2>/dev/null | grep -q ':80 '; then
+        log_warning "Port 80 masih digunakan oleh proses lain"
+        # Try to kill whatever is on port 80
+        fuser -k 80/tcp >> "$LOG_FILE" 2>&1 || true
+        sleep 2
     fi
     
     # Get certificate using standalone mode
-    run_with_spinner "Mendapatkan sertifikat SSL untuk Wings" "certbot certonly --standalone -d $wings_domain --non-interactive --agree-tos --email $email"
+    log_info "Menjalankan certbot standalone..."
+    certbot certonly --standalone \
+        -d "$wings_domain" \
+        --non-interactive \
+        --agree-tos \
+        --email "$email" \
+        --no-eff-email \
+        >> "$LOG_FILE" 2>&1
     
     local cert_result=$?
     
     # Restart nginx if it was running
-    if [[ "$port_80_in_use" == "true" ]]; then
-        systemctl start nginx 2>/dev/null || true
+    if [[ "$nginx_was_running" == "true" ]]; then
+        log_info "Memulai kembali Nginx..."
+        systemctl start nginx >> "$LOG_FILE" 2>&1 || true
     fi
     
-    if [[ $cert_result -eq 0 ]]; then
+    if [[ $cert_result -eq 0 ]] && check_ssl_certificate_exists "$wings_domain"; then
         log_success "Sertifikat SSL untuk Wings berhasil didapatkan"
         log_info "Lokasi sertifikat:"
         log_info "  - Certificate: /etc/letsencrypt/live/$wings_domain/fullchain.pem"
         log_info "  - Private Key: /etc/letsencrypt/live/$wings_domain/privkey.pem"
     else
-        log_warning "Gagal mendapatkan sertifikat SSL untuk Wings"
-        log_info "Wings akan menggunakan auto_tls atau HTTP"
-        log_info "Anda dapat mencoba lagi nanti dengan:"
-        log_info "  certbot certonly --standalone -d $wings_domain"
+        log_error "Gagal mendapatkan sertifikat SSL untuk Wings"
+        log_info "Error log: cat $LOG_FILE | grep -i certbot"
+        log_info "Pastikan domain $wings_domain sudah pointing ke IP server ini"
+        log_info ""
+        log_info "Anda dapat mencoba manual dengan:"
+        log_info "  1. systemctl stop nginx (jika ada)"
+        log_info "  2. certbot certonly --standalone -d $wings_domain"
+        log_info "  3. systemctl start nginx"
         WINGS_USE_SSL=false
     fi
     
