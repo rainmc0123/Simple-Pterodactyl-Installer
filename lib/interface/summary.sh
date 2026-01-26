@@ -85,10 +85,27 @@ print_summary() {
     echo ""
     echo -e "    ${NEON_ORANGE}⚠${NC}  ${WHITE}Credentials saved:${NC} ${DIM}${CREDENTIALS_FILE:-/root/pterodactyl-credentials.txt}${NC}"
     echo ""
-    echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
-    echo -e "    ${NEON_CYAN}▸${NC} ${WHITE}Next:${NC} ${DIM}Login → Create Location → Create Node → Configure Wings${NC}"
-    echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
-    echo ""
+    
+    # Show Wings configuration instructions for "both" mode
+    if [[ "$INSTALL_MODE" == "both" ]]; then
+        echo -e "    ${NEON_CYAN}┌──────────────────────────────────────────────────────────────────────────┐${NC}"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_ORANGE}⚡${NC} ${WHITE}KONFIGURASI WINGS${NC}"
+        echo -e "    ${NEON_CYAN}│${NC}"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}1.${NC} Login ke Panel: ${NEON_CYAN}${APP_URL}${NC}"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}2.${NC} Admin → Locations → Create New"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}3.${NC} Admin → Nodes → Create New"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}4.${NC} Klik node → Tab Configuration → Copy config"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}5.${NC} Paste ke: ${WHITE}/etc/pterodactyl/config.yml${NC}"
+        echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}6.${NC} Jalankan: ${WHITE}systemctl start wings${NC}"
+        echo -e "    ${NEON_CYAN}└──────────────────────────────────────────────────────────────────────────┘${NC}"
+        echo ""
+    else
+        echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
+        echo -e "    ${NEON_CYAN}▸${NC} ${WHITE}Next:${NC} ${DIM}Login → Create Location → Create Node → Configure Wings${NC}"
+        echo -e "    ${DIM}──────────────────────────────────────────────────────────────────────────${NC}"
+        echo ""
+    fi
+    
     echo -e "    ${DIM}Powered by${NC} ${NEON_PINK}ClouviaID${NC}"
     echo -e "    ${NEON_ORANGE}⚡${NC} ${DIM}Pterodactyl Community:${NC} ${NEON_CYAN}https://chat.whatsapp.com/I9TD1kQM9kKAeFVzzChysJ${NC}"
     echo ""

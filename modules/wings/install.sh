@@ -7,7 +7,14 @@ install_wings() {
     download_wings_binary
     setup_wings_service
     
-    # Wait for user to configure Wings from Panel
+    # For "both" mode, skip interactive config - user will configure after viewing summary
+    if [[ "$INSTALL_MODE" == "both" ]]; then
+        log_info "Wings binary terinstall. Konfigurasi akan dilakukan setelah login ke Panel."
+        log_info "Setelah instalasi selesai, ikuti instruksi di summary untuk configure Wings."
+        return 0
+    fi
+    
+    # For "wings" only mode - wait for user to configure Wings from Panel
     wait_for_wings_config
     
     # Validate and start Wings
