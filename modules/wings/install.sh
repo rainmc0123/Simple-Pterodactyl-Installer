@@ -184,29 +184,77 @@ auto_fix_wings_ssl() {
     echo ""
     log_info "Auto-fixing SSL untuk domain: $domain"
     
+    # Verify certbot is installed
+    if ! command -v certbot &> /dev/null; then
+        log_warning "Certbot tidak terinstall. Menginstall certbot..."
+        apt-get update >> "$LOG_FILE" 2>&1
+        apt-get install -y certbot >> "$LOG_FILE" 2>&1
+        
+        if ! command -v certbot &> /dev/null; then
+            log_error "Gagal menginstall certbot"
+            WINGS_USE_SSL=false
+            return 1
+        fi
+        log_success "Certbot berhasil diinstall"
+    fi
+    
+    # Check if certificate already exists
+    if [[ -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]]; then
+        log_success "SSL certificate sudah ada untuk $domain"
+        WINGS_USE_SSL=true
+        return 0
+    fi
+    
     # Make sure port 80 is free
     if ss -tlnp 2>/dev/null | grep -q ':80 '; then
         log_info "Membebaskan port 80..."
         fuser -k 80/tcp >> "$LOG_FILE" 2>&1 || true
-        sleep 2
+        sleep 3
     fi
     
-    # Run certbot standalone
-    log_info "Menjalankan certbot standalone..."
-    certbot certonly --standalone \
-        -d "$domain" \
-        --non-interactive \
-        --agree-tos \
-        --email "$email" \
-        --no-eff-email \
-        >> "$LOG_FILE" 2>&1
+    # Wait for port 80 to be free
+    local max_wait=10
+    local waited=0
+    while ss -tlnp 2>/dev/null | grep -q ':80 ' && [[ $waited -lt $max_wait ]]; do
+        sleep 1
+        ((waited++))
+    done
     
-    if [[ -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]]; then
+    # Run certbot standalone with retry
+    local max_retries=2
+    local retry=0
+    local cert_success=false
+    
+    while [[ $retry -lt $max_retries ]] && [[ "$cert_success" == "false" ]]; do
+        log_info "Menjalankan certbot standalone (attempt $((retry+1))/$max_retries)..."
+        
+        certbot certonly --standalone \
+            -d "$domain" \
+            --non-interactive \
+            --agree-tos \
+            --email "$email" \
+            --no-eff-email \
+            --force-renewal \
+            >> "$LOG_FILE" 2>&1
+        
+        if [[ -f "/etc/letsencrypt/live/$domain/fullchain.pem" ]]; then
+            cert_success=true
+        else
+            log_warning "Certbot attempt $((retry+1)) gagal, mencoba lagi..."
+            sleep 3
+        fi
+        
+        ((retry++))
+    done
+    
+    if [[ "$cert_success" == "true" ]]; then
         log_success "SSL certificate berhasil didapatkan untuk $domain"
+        WINGS_USE_SSL=true
     else
-        log_error "Gagal mendapatkan SSL certificate"
+        log_error "Gagal mendapatkan SSL certificate setelah $max_retries percobaan"
         log_info "Pastikan domain $domain sudah pointing ke IP server ini"
         log_info "Coba manual: certbot certonly --standalone -d $domain"
+        WINGS_USE_SSL=false
     fi
     
     return 0

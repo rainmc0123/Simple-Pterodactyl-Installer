@@ -135,7 +135,7 @@ print_wings_summary() {
     echo -e "    ${NEON_CYAN}│${NC}    OS         ${DIM}${OS_NAME} ${OS_VERSION}${NC}"
     echo -e "    ${NEON_CYAN}├──────────────────────────────────────────────────────────────────────────┤${NC}"
     
-    if [[ "$WINGS_USE_SSL" == "true" ]] && check_ssl_certificate_exists "$WINGS_FQDN"; then
+    if check_ssl_certificate_exists "$WINGS_FQDN"; then
         echo -e "    ${NEON_CYAN}│${NC}  ${NEON_GREEN}▸${NC} ${WHITE}SSL${NC}           ${NEON_GREEN}✓ Configured${NC}"
         echo -e "    ${NEON_CYAN}│${NC}    Cert       ${DIM}/etc/letsencrypt/live/${WINGS_FQDN}/fullchain.pem${NC}"
         echo -e "    ${NEON_CYAN}│${NC}    Key        ${DIM}/etc/letsencrypt/live/${WINGS_FQDN}/privkey.pem${NC}"
@@ -151,7 +151,7 @@ print_wings_summary() {
     echo -e "    ${NEON_CYAN}▸${NC} ${WHITE}Next Steps:${NC}"
     echo -e "    ${DIM}  1. Open Panel → Admin → Nodes → Create New${NC}"
     echo -e "    ${DIM}  2. Set FQDN: ${WINGS_FQDN}${NC}"
-    if [[ "$WINGS_USE_SSL" == "true" ]] && check_ssl_certificate_exists "$WINGS_FQDN"; then
+    if check_ssl_certificate_exists "$WINGS_FQDN"; then
         echo -e "    ${DIM}  3. SSL: Use SSL Connection${NC}"
     else
         echo -e "    ${DIM}  3. SSL: Use HTTP or enable auto_tls${NC}"

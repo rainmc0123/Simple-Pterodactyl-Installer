@@ -107,8 +107,20 @@ main() {
     if [[ "$INSTALL_MODE" == "wings" || "$INSTALL_MODE" == "both" ]]; then
         install_docker
         
-        # Install certbot for SSL (will be used by auto-fix if needed)
-        install_certbot
+        # Install certbot for SSL (skip if already installed for Panel)
+        if [[ "$INSTALL_MODE" == "wings" ]]; then
+            install_certbot
+        fi
+        
+        # Get SSL certificate for Wings domain BEFORE wings installation
+        # For "wings" mode: always get SSL
+        # For "both" mode: only get SSL if Wings domain differs from Panel domain
+        if [[ "$INSTALL_MODE" == "wings" ]]; then
+            setup_wings_ssl
+        elif [[ "$INSTALL_MODE" == "both" && "$WINGS_FQDN" != "$FQDN" && -n "$WINGS_FQDN" ]]; then
+            # Wings domain is different from Panel - need separate SSL
+            setup_wings_ssl
+        fi
         
         install_wings
     fi

@@ -32,9 +32,23 @@ setup_wings_ssl() {
     
     log_info "Mendapatkan sertifikat SSL untuk Wings node: $wings_domain"
     
+    # Verify certbot is installed
+    if ! command -v certbot &> /dev/null; then
+        log_error "Certbot tidak terinstall! Menginstall ulang..."
+        apt-get update >> "$LOG_FILE" 2>&1
+        apt-get install -y certbot >> "$LOG_FILE" 2>&1
+        
+        if ! command -v certbot &> /dev/null; then
+            log_error "Gagal menginstall certbot"
+            WINGS_USE_SSL=false
+            return 1
+        fi
+    fi
+    
     # Check if certificate already exists (might be same as panel domain)
     if check_ssl_certificate_exists "$wings_domain"; then
         log_success "Sertifikat SSL sudah ada untuk $wings_domain"
+        WINGS_USE_SSL=true
         return 0
     fi
     
@@ -52,20 +66,43 @@ setup_wings_ssl() {
         log_warning "Port 80 masih digunakan oleh proses lain"
         # Try to kill whatever is on port 80
         fuser -k 80/tcp >> "$LOG_FILE" 2>&1 || true
-        sleep 2
+        sleep 3
     fi
     
-    # Get certificate using standalone mode
-    log_info "Menjalankan certbot standalone..."
-    certbot certonly --standalone \
-        -d "$wings_domain" \
-        --non-interactive \
-        --agree-tos \
-        --email "$email" \
-        --no-eff-email \
-        >> "$LOG_FILE" 2>&1
+    # Double-check port 80 is free
+    local max_wait=10
+    local waited=0
+    while ss -tlnp 2>/dev/null | grep -q ':80 ' && [[ $waited -lt $max_wait ]]; do
+        sleep 1
+        ((waited++))
+    done
     
-    local cert_result=$?
+    # Get certificate using standalone mode with retry
+    local cert_result=1
+    local max_retries=2
+    local retry=0
+    
+    while [[ $retry -lt $max_retries ]] && [[ $cert_result -ne 0 ]]; do
+        log_info "Menjalankan certbot standalone (attempt $((retry+1))/$max_retries)..."
+        
+        certbot certonly --standalone \
+            -d "$wings_domain" \
+            --non-interactive \
+            --agree-tos \
+            --email "$email" \
+            --no-eff-email \
+            --force-renewal \
+            >> "$LOG_FILE" 2>&1
+        
+        cert_result=$?
+        
+        if [[ $cert_result -ne 0 ]]; then
+            log_warning "Certbot attempt $((retry+1)) gagal, mencoba lagi..."
+            sleep 3
+        fi
+        
+        ((retry++))
+    done
     
     # Restart nginx if it was running
     if [[ "$nginx_was_running" == "true" ]]; then
@@ -78,9 +115,10 @@ setup_wings_ssl() {
         log_info "Lokasi sertifikat:"
         log_info "  - Certificate: /etc/letsencrypt/live/$wings_domain/fullchain.pem"
         log_info "  - Private Key: /etc/letsencrypt/live/$wings_domain/privkey.pem"
+        WINGS_USE_SSL=true
     else
         log_error "Gagal mendapatkan sertifikat SSL untuk Wings"
-        log_info "Error log: cat $LOG_FILE | grep -i certbot"
+        log_info "Cek error detail dengan: cat $LOG_FILE | grep -i 'certbot\|error' | tail -20"
         log_info "Pastikan domain $wings_domain sudah pointing ke IP server ini"
         log_info ""
         log_info "Anda dapat mencoba manual dengan:"
