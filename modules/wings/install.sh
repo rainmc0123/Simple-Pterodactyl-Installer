@@ -37,7 +37,6 @@ wait_for_wings_config() {
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}4.${NC} Klik node → Tab ${WHITE}Configuration${NC} → ${NEON_ORANGE}Generate Token${NC}"
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_GREEN}5.${NC} Copy command ${WHITE}Auto-Deploy${NC} dan paste di bawah"
     echo -e "    ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
     # Wait for user to paste wings configure command

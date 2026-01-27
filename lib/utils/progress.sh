@@ -40,15 +40,15 @@ show_progress() {
     
     # Futuristic progress display
     echo ""
-    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_BLUE}⚡${NC} ${STYLE_BOLD}${WHITE}STEP ${current}/${total}${NC}                                                        ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}[${NC}${NEON_GREEN}${bar}${NC}${DIM}]${NC} ${WHITE}${percent}%${NC}                                  ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_BLUE}⚡${NC} ${STYLE_BOLD}${WHITE}STEP ${current}/${total}${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}[${NC}${NEON_GREEN}${bar}${NC}${DIM}]${NC} ${WHITE}${percent}%${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_CYAN}▸${NC} ${WHITE}${step_name}${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}                                                                        ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}Elapsed:${NC} ${WHITE}$(printf "%02d:%02d" "$elapsed_min" "$elapsed_sec")${NC}  ${DIM}│${NC}  ${DIM}ETA:${NC} ${WHITE}${eta}${NC}                                   ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}  ${DIM}Elapsed:${NC} ${WHITE}$(printf "%02d:%02d" "$elapsed_min" "$elapsed_sec")${NC}  ${DIM}│${NC}  ${DIM}ETA:${NC} ${WHITE}${eta}${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
     
     return 0
 }

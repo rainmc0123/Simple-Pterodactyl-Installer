@@ -45,7 +45,6 @@ show_install_menu() {
     echo -e "    ${NEON_CYAN}┃${NC}"
     echo -e "    ${NEON_CYAN}┃${NC}   ${RED}[0]${NC} ${DIM}Exit${NC}"
     echo -e "    ${NEON_CYAN}┃${NC}"
-    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
     while true; do
@@ -108,7 +107,7 @@ set_total_steps() {
             TOTAL_STEPS=15
             ;;
         wings)
-            TOTAL_STEPS=8
+            TOTAL_STEPS=10
             ;;
         both)
             TOTAL_STEPS=22
@@ -138,7 +137,6 @@ show_uninstall_menu() {
     echo -e "    ${RED}┃${NC}"
     echo -e "    ${RED}┃${NC}   ${NEON_GREEN}[0]${NC} ${DIM}Back${NC}"
     echo -e "    ${RED}┃${NC}"
-    echo -e "    ${RED}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
     while true; do

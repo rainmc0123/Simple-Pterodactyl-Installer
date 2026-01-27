@@ -57,9 +57,9 @@ print_section_header() {
     local icon="${2:-▸}"
     
     echo ""
-    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${NC}"
+    echo -e "    ${NEON_CYAN}┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "    ${NEON_CYAN}┃${NC}  ${NEON_BLUE}${icon}${NC} ${STYLE_BOLD}${WHITE}${title}${NC}"
-    echo -e "    ${NEON_CYAN}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${NC}"
+    echo -e "    ${NEON_CYAN}┃${NC}"
     echo ""
     
     return 0
