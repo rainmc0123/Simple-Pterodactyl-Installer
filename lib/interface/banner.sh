@@ -30,7 +30,7 @@ print_banner() {
     echo ""
     
     # System info bar
-    local ip_addr=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "N/A")
+    local ip_addr=$(get_public_ip 2>/dev/null || echo "N/A")
     local os_info=$(. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME" || echo "Linux")
     
     echo -e "    ${DIM}┌━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

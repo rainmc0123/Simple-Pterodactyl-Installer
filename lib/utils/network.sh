@@ -37,6 +37,7 @@ check_dns_resolution() {
 get_public_ip() {
     local ip=""
     local services=(
+        "https://ifconfig.me"
         "https://icanhazip.com"
         "https://ipinfo.io/ip"
         "https://api.ipify.org"

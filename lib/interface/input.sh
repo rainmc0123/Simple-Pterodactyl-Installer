@@ -36,7 +36,7 @@ get_panel_domain() {
     echo -e "    ${DIM}Enter your panel domain (pointed to this server)${NC}"
     echo ""
     
-    local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    local server_ip=$(get_public_ip 2>/dev/null)
     
     if [[ -n "$ARG_DOMAIN" ]]; then
         FQDN=$(echo "$ARG_DOMAIN" | sed -e 's|^https\?://||' -e 's|/$||')
@@ -113,7 +113,7 @@ validate_domain_dns() {
 get_wings_fqdn() {
     echo ""
     
-    local server_ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    local server_ip=$(get_public_ip 2>/dev/null)
     
     # For 'both' mode, default to panel domain
     if [[ "$INSTALL_MODE" == "both" && -n "$FQDN" ]]; then
